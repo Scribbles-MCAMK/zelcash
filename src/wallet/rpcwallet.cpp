@@ -4239,7 +4239,7 @@ UniValue z_shieldcoinbase(const UniValue& params, bool fHelp)
     CMutableTransaction contextualTx = CreateNewContextualCMutableTransaction(
         Params().GetConsensus(), nextBlockHeight);
     if (contextualTx.nVersion == 1) {
-        contextualTx.nVersion = 2; // Tx format should support vJoinSplits 
+        contextualTx.nVersion = 2; // Tx format should support vJoinSplit 
     }
 
     // Create operation and add to global queue
