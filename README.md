@@ -6,7 +6,7 @@
 What is Zel?
 --------------
 
-[Zel](https://zel.network/) is a fork of 2.0.6 Zcash aiming to provide a decentralized development platform via ZelNodes, ZelCore and more. Test
+[Zel](https://zel.network/) is a fork of 2.0.6 Zcash aiming to provide a decentralized development platform via ZelNodes, ZelCore and more. This time?
 
 Zel is PoW asic resistant with ZelHash (Modified Equihash 125,4) with the personalisation string ZelProof and LWMA3 difficulty algorithm.
 
