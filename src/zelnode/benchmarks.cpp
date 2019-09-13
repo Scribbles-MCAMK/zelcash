@@ -273,7 +273,7 @@ void RunSysBenchTest()
 {
 
     LogPrintf("---Starting sysbench test\n");
-    std::string command = "sysbench --test=cpu --threads=" + std::to_string(benchmarks.nNumberOfCores) + " --cpu-max-prime=60000 --time=20 run";
+    std::string command = "sysbench cpu --threads=" + std::to_string(benchmarks.nNumberOfCores) + " --cpu-max-prime=60000 --time=20 run";
 
     std::string result = GetStdoutFromCommand(command);
 

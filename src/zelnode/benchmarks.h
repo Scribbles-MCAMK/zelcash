@@ -208,9 +208,9 @@ static std::string strNenchScript= "#!/usr/bin/env bash\n"
                             "\n"
                             "if ! command_exists ioping\n"
                             "then\n"
-                            "    curl -s --max-time 10 -o ioping.static http://wget.racing/ioping.static\n"
-                            "    chmod +x ioping.static\n"
-                            "    ioping_cmd=\"./ioping.static\"\n"
+                            "    #curl -s --max-time 10 -o ioping.static http://wget.racing/ioping.static\n"
+                            "    #chmod +x ioping.static\n"
+                            "    ioping_cmd=\"ioping\"\n"
                             "else\n"
                             "    ioping_cmd=\"ioping\"\n"
                             "fi\n"
@@ -385,7 +385,7 @@ static std::string strNenchScript= "#!/usr/bin/env bash\n"
                             "\n"
                             "# delete downloaded ioping binary if script has been run straight from a pipe\n"
                             "# (rather than a downloaded file)\n"
-                            "[ -t 0 ] || rm -f ioping.static";
+                            "#[ -t 0 ] || rm -f ioping.static";
 
 
 #endif //ZELCASH_BENCHMARKS_H
