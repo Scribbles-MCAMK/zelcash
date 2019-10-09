@@ -21,8 +21,8 @@ namespace Consensus {
  * several functions depend on the enum being sorted.
  */
 enum UpgradeIndex {
-    // BASE must be first
-    BASE,
+    // BASE_SPROUT must be first
+    BASE_SPROUT,
     UPGRADE_TESTDUMMY,
     // LWMA algo starts at this block 
     UPGRADE_LWMA,
