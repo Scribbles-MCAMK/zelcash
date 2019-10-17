@@ -512,9 +512,10 @@ bool AsyncRPCOperation_sendmany::main_impl() {
         CAmount funds = selectedUTXOAmount;
         CAmount fundsSpent = t_outputs_total + minersFee;
         CAmount change = funds - fundsSpent;
-        
+
+        CReserveKey keyChange(pwalletMain);
         if (change > 0) {
-            add_taddr_change_output_to_tx(change);
+            add_taddr_change_output_to_tx(keyChange, change);
 
             LogPrint("zrpc", "%s: transparent change in transaction output (amount=%s)\n",
                     getId(),
@@ -524,7 +525,9 @@ bool AsyncRPCOperation_sendmany::main_impl() {
         
         UniValue obj(UniValue::VOBJ);
         obj.push_back(Pair("rawtxn", EncodeHexTx(tx_)));
-        sign_send_raw_transaction(obj);
+        auto txAndResult = SignSendRawTransaction(obj, keyChange, testmode);
+        tx_ = txAndResult.first;
+        set_result(txAndResult.second);
         return true;
     }
     /**
@@ -586,7 +589,8 @@ bool AsyncRPCOperation_sendmany::main_impl() {
         CAmount funds = selectedUTXOAmount;
         CAmount fundsSpent = t_outputs_total + minersFee + z_outputs_total;
         CAmount change = funds - fundsSpent;
-        
+
+        CReserveKey keyChange(pwalletMain);
         if (change > 0) {
             if (selectedUTXOCoinbase) {
                 assert(isSingleZaddrOutput);
@@ -595,7 +599,7 @@ bool AsyncRPCOperation_sendmany::main_impl() {
                     "allow any change as there is currently no way to specify a change address "
                     "in z_sendmany.", FormatMoney(change)));
             } else {
-                add_taddr_change_output_to_tx(change);
+                add_taddr_change_output_to_tx(keyChange, change);
                 LogPrint("zrpc", "%s: transparent change in transaction output (amount=%s)\n",
                         getId(),
                         FormatMoney(change)
@@ -629,7 +633,10 @@ bool AsyncRPCOperation_sendmany::main_impl() {
             }
             obj = perform_joinsplit(info);
         }
-        sign_send_raw_transaction(obj);
+
+        auto txAndResult = SignSendRawTransaction(obj, keyChange, testmode);
+        tx_ = txAndResult.first;
+        set_result(txAndResult.second);
         return true;
     }
     /**
@@ -1296,12 +1303,11 @@ void AsyncRPCOperation_sendmany::add_taddr_outputs_to_tx() {
     tx_ = CTransaction(rawTx);
 }
 
-void AsyncRPCOperation_sendmany::add_taddr_change_output_to_tx(CAmount amount) {
+void AsyncRPCOperation_sendmany::add_taddr_change_output_to_tx(CReserveKey& keyChange, CAmount amount) {
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     EnsureWalletIsUnlocked();
-    CReserveKey keyChange(pwalletMain);
     CPubKey vchPubKey;
     bool ret = keyChange.GetReservedKey(vchPubKey);
     if (!ret) {
