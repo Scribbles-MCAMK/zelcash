@@ -464,7 +464,7 @@ UniValue getblockdeltas(const UniValue& params, bool fHelp)
 
     if (!enabled) {
         throw JSONRPCError(RPC_MISC_ERROR, "Error: getblockdeltas is disabled. "
-            "Run './zcash-cli help getblockdeltas' for instructions on how to enable this feature.");
+            "Run './zelcash-cli help getblockdeltas' for instructions on how to enable this feature.");
     }
 
     std::string strHash = params[0].get_str();

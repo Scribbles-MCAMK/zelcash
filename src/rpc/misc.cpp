@@ -1083,7 +1083,7 @@ UniValue getspentinfo(const UniValue& params, bool fHelp)
 
     if (!enabled) {
         throw JSONRPCError(RPC_MISC_ERROR, "Error: getspentinfo is disabled. "
-            "Run './zcash-cli help getspentinfo' for instructions on how to enable this feature.");
+            "Run './zelcash-cli help getspentinfo' for instructions on how to enable this feature.");
     }
 
     UniValue txidValue = find_value(params[0].get_obj(), "txid");
