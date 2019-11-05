@@ -3886,15 +3886,6 @@ UniValue z_sendmany(const UniValue& params, bool fHelp)
     o.push_back(Pair("fee", std::stod(FormatMoney(nFee))));
     UniValue contextInfo = o;
 
-    if (!fromTaddr || !zaddrRecipients.empty()) {
-        // We have shielded inputs or outputs, and therefore cannot create
-        // transactions before Acadia (Sapling) activates.
-        if (!Params().GetConsensus().NetworkUpgradeActive(nextBlockHeight, Consensus::UPGRADE_ACADIA)) {
-            throw JSONRPCError(
-                RPC_INVALID_PARAMETER, "Cannot create shielded transactions before Acadia (Sapling) has activated");
-        }
-    }
-
     // Builder (used if Sapling addresses are involved)
     boost::optional<TransactionBuilder> builder;
     if (noSproutAddrs) {
@@ -4132,17 +4123,21 @@ UniValue z_shieldcoinbase(const UniValue& params, bool fHelp)
     }
 
     int nextBlockHeight = chainActive.Height() + 1;
-    const bool saplingActive =  Params().GetConsensus().NetworkUpgradeActive(nextBlockHeight, Consensus::UPGRADE_ACADIA);
-
-    // We cannot create shielded transactions before Acadia (Sapling) activates.
-    if (!saplingActive) {
-        throw JSONRPCError(
-            RPC_INVALID_PARAMETER, "Cannot create shielded transactions before Acadia (Sapling) has activated");
-    }
-
     bool overwinterActive = Params().GetConsensus().NetworkUpgradeActive(nextBlockHeight, Consensus::UPGRADE_ACADIA);
-    assert(overwinterActive);
     unsigned int max_tx_size = MAX_TX_SIZE_AFTER_SAPLING;
+    if (!Params().GetConsensus().NetworkUpgradeActive(nextBlockHeight, Consensus::UPGRADE_ACADIA)) {
+        max_tx_size = MAX_TX_SIZE_BEFORE_SAPLING;
+        auto res = DecodePaymentAddress(destaddress);
+        // If Acadia (Sapling) is not active, do not allow sending to a Sapling address.
+        if (IsValidPaymentAddress(res)) {
+            bool toSapling = boost::get<libzelcash::SaplingPaymentAddress>(&res) != nullptr;
+            if (toSapling) {
+                throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, Acadia (Sapling) has not activated");
+            }
+        } else {
+            throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, unknown address format: ") + destaddress );
+        }
+    }
 
     // Prepare to get coinbase utxos
     std::vector<ShieldCoinbaseUTXO> inputs;
